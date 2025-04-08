@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Mermaid 用例图示例</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f8f8f8;
+    }
+    .mermaid {
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h2>Mermaid 用例图渲染示例</h2>
+
+  <div class="mermaid">
+    %% 用例图示例
+    graph TD
+      actor_管理员[管理员]
+      actor_用户[用户]
+
+      usecase_登录[登录系统]
+      usecase_管理[管理用户]
+      usecase_日志[查看日志]
+      usecase_信息[查看个人信息]
+
+      actor_管理员 --> usecase_登录
+      actor_管理员 --> usecase_管理
+      actor_管理员 --> usecase_日志
+      actor_用户 --> usecase_信息
+  </div>
+</body>
+</html>

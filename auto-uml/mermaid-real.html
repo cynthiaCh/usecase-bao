@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Mermaid 用例图（模拟椭圆）</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .mermaid {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h2>更像 UML 的 Mermaid 用例图</h2>
+
+  <div class="mermaid">
+    flowchart TD
+      actor_管理员["👤 管理员"]
+      actor_用户["👤 用户"]
+
+      subgraph 系统 [系统边界]
+        登录(["登录系统"])
+        管理(["管理用户"])
+        日志(["查看日志"])
+        信息(["查看个人信息"])
+      end
+
+      actor_管理员 --> 登录
+      actor_管理员 --> 管理
+      actor_管理员 --> 日志
+      actor_用户 --> 信息
+  </div>
+</body>
+</html>

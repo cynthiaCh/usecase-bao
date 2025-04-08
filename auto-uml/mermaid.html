@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>Mermaid 用例图（小人 + 椭圆）</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    .mermaid {
+      background: white;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h2>Mermaid 用例图（带小人和椭圆）</h2>
+
+  <div class="mermaid">
+    %%{ init: { "theme": "default" } }%%
+    flowchart TD
+      用户([👤 用户])
+      管理员([👤 管理员])
+
+      登录系统(((登录系统)))
+      管理用户(((管理用户)))
+      查看日志(((查看日志)))
+      查看信息(((查看个人信息)))
+
+      用户 --> 查看信息
+      管理员 --> 登录系统
+      管理员 --> 管理用户
+      管理员 --> 查看日志
+  </div>
+</body>
+</html>
