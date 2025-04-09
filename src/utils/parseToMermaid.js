@@ -8,51 +8,59 @@ export function parseToMermaid(text) {
   let actorCounter = 0
 
   const verbs = ['登录', '查看', '管理', '提交', '审批', '下载', '上传', '导出', '导入', '编辑', '删除', '创建', '新增', '维护', '操作']
-  const verbPattern = new RegExp(`^(.+?)(${verbs.join('|')})(.*)$`)
+  const verbPattern = new RegExp(`(${verbs.join('|')})`, 'g')
+  const sentenceDelimiters = /[。；!！？?]/g
+  const actionDelimiters = /[，、和与及并然后]/g
 
-  // 清洗和分句
   const cleanText = text
-    .replace(/：/g, '，')       // 统一为逗号
-    .replace(/[（）]/g, '')     // 去除括号
-    .replace(/[。；!！？?]/g, '\n') // 用换行分句
+    .replace(/：/g, '，')
+    .replace(/[（）]/g, '')
+    .replace(sentenceDelimiters, '\n')
     .split('\n')
     .map(s => s.trim())
     .filter(Boolean)
 
   for (const sentence of cleanText) {
     const isReadonly = sentence.includes('不可操作') || sentence.includes('只读')
-    const parts = sentence.split(/，|、/).map(p => p.trim()).filter(Boolean)
 
-    for (const part of parts) {
-      const subActions = part.split(/并|然后|及|和|与|、/).map(p => p.trim()).filter(Boolean)
+    // 找所有动词的位置
+    const verbMatches = [...sentence.matchAll(verbPattern)]
+    if (verbMatches.length === 0) continue
 
-      for (const sub of subActions) {
-        const match = sub.match(verbPattern)
-        if (match) {
-          const actor = match[1].trim()
-          const verb = match[2].trim()
-          const obj = match[3].trim()
-          const actionLabel = obj ? `${verb}${obj}` : verb
+    // 用第一个动词前的部分当角色
+    const firstVerb = verbMatches[0]
+    const actorPart = sentence.slice(0, firstVerb.index).trim()
+    const actionPart = sentence.slice(firstVerb.index).trim()
 
-          if (!actorMap.has(actor)) {
-            const actorId = `actor_${actorCounter++}`
-            actorMap.set(actor, actorId)
-            lines.push(`${actorId}(["👤 ${actor}"])`)
-          }
-          const actorId = actorMap.get(actor)
+    if (!actorPart) continue
+    const actors = actorPart.split(/、|和|及|与/).map(a => a.trim()).filter(Boolean)
+    const actions = actionPart.split(actionDelimiters).map(a => a.trim()).filter(Boolean)
 
-          let ucId = usecaseMap.get(actionLabel)
-          if (!ucId) {
-            ucId = `uc_${usecaseCounter++}`
-            usecaseMap.set(actionLabel, ucId)
-            usecases.push({ id: ucId, label: actionLabel })
-          }
+    for (const actor of actors) {
+      if (!actorMap.has(actor)) {
+        const actorId = `actor_${actorCounter++}`
+        actorMap.set(actor, actorId)
+        lines.push(`${actorId}(["👤 ${actor}"])`)
+      }
+      const actorId = actorMap.get(actor)
 
-          const link = isReadonly
-            ? `${actorId} -.-> ${ucId}`
-            : `${actorId} --> ${ucId}`
-          links.push(link)
+      for (const action of actions) {
+        const match = action.match(new RegExp(`^(${verbs.join('|')})(.*)$`))
+        if (!match) continue
+
+        const verb = match[1].trim()
+        const obj = match[2].trim()
+        const label = obj ? `${verb}${obj}` : verb
+
+        if (!usecaseMap.has(label)) {
+          const ucId = `uc_${usecaseCounter++}`
+          usecaseMap.set(label, ucId)
+          usecases.push({ id: ucId, label })
         }
+
+        const ucId = usecaseMap.get(label)
+        const link = isReadonly ? `${actorId} -.-> ${ucId}` : `${actorId} --> ${ucId}`
+        links.push(link)
       }
     }
   }
@@ -61,9 +69,7 @@ export function parseToMermaid(text) {
     return `flowchart TD\nactor_0(["👤 未识别"])\nuc_1((( 无法解析句子 )))\nactor_0 --> uc_1`
   }
 
-  usecases.forEach(u => {
-    lines.push(`${u.id}((( ${u.label} )))`)
-  })
+  usecases.forEach(u => lines.push(`${u.id}((( ${u.label} )))`))
   lines.push(...links)
 
   return lines.join('\n')
